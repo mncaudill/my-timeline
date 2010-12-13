@@ -33,22 +33,24 @@
         var myOptions = {
             zoom: 8,
             center: latlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            navigationControl: true,
+            navigationControlOptions: {
+              style: google.maps.NavigationControlStyle.SMALL
+            },
+            
         };
         var map = new google.maps.Map(document.getElementById("map"), myOptions);
 
         <?=$maps_js?>
 
-        var open_window;
+        var infowindow = new google.maps.InfoWindow();
 
         function marker_click(marker, point) {
             return function() {
-                var infowindow = new google.maps.InfoWindow({content: point.html});
-                if(open_window) {
-                    open_window.close();
-                }
+                infowindow.close();
+                infowindow.setContent(point.html);
                 infowindow.open(map, marker);     
-                open_window = infowindow;
             }
         }
 
