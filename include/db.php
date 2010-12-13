@@ -5,15 +5,15 @@
     function db_connect() {
         global $db;
 
-        $db = mysql_connect($db['host'], $db['username'], $db['password']);
+        $dbh = mysql_connect($db['host'], $db['username'], $db['password']);
 
-        if(!$db) {
+        if(!$dbh) {
             die("Couldn't connect to DB: " . mysql_error());
         }
 
-        mysql_select_db('mysanfrancisco');
-        mysql_set_charset('utf8', $db);
-        return $db;
+        mysql_select_db($db['name']);
+        mysql_set_charset('utf8', $dbh);
+        return $dbh;
     }
 
     function db_query($query) {
