@@ -84,9 +84,6 @@
         return "http://farm{$photo_info->farm}.static.flickr.com/{$photo_info->server}/{$photo_info->id}_{$photo_info->secret}_s.jpg";
     }
 
-    $nsid = '52777706@N00';
-    $photos = flickr_fetch_photos($nsid);
-
     function flickr_insert_photo($photo) {
 
         $escaped = array();
