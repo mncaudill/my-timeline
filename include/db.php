@@ -33,10 +33,5 @@
     function db_insert($query) {
 
         $db = db_connect();
-
-        if($res = mysql_query($query, $db)) {
-            return true;
-        } else {
-            print mysql_error() . "\n";
-        }
+        return mysql_query($query, $db);
     }

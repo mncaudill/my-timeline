@@ -9,7 +9,8 @@
         $photos = array();
         $curr_page = 1;
         $count = 1;
-        
+
+        $done = false;
         do {
             $rsp = flickr_api_call('flickr.people.getPublicPhotos', array('geo', 1, 'user_id' => $nsid, 'page' => $curr_page)); 
             if($rsp->stat === 'ok') {
@@ -26,6 +27,7 @@
                     if ($photo_info = flickr_get_photo_info($photo_id)) {
                         if($photo_info->location->latitude) {
                             $photo = array();
+                            $photo['photo_id'] = $photo_id;
                             $photo['title'] = $photo_info->title->_content;
                             $photo['description'] = $photo_info->description->_content;
                             $photo['date'] = $photo_info->dates->taken;
@@ -33,8 +35,12 @@
                             $photo['longitude'] = $photo_info->location->longitude;
                             $photo['image_url'] = flickr_get_image_url($photo_info);
                             $photo['url'] = $photo_info->urls->url[0]->_content;
+                            $photo['posted'] = $photo_info->dates->posted;
 
-                            flickr_insert_photo($photo);
+                            if(!flickr_insert_photo($photo)) {
+                                $done = true;        
+                                break;
+                            }
                         }
 
                         // Sleep for quarter second
@@ -43,7 +49,7 @@
                 }
 
             } 
-        } while ($curr_page <= $pages);
+        } while ($curr_page <= $pages && !$done);
 
         return $photos;
     }
@@ -92,10 +98,10 @@
             $escaped[$key] = addslashes($value); 
         }
 
-        $query = "INSERT INTO geopoints (user_id, source, lat, lon, event_time, url, image_url, title, description) values ";
-        $query .= "  (1, 1, '{$escaped['latitude']}', '{$escaped['longitude']}', '{$escaped['date']}', '{$escaped['url']}', '{$escaped['image_url']}', ";
-        $query .= "'{$escaped['title']}', '{$escaped['description']}')";
+        $query = "INSERT INTO geopoints (user_id, source, source_id, lat, lon, event_time, url, image_url, title, description, posted) values ";
+        $query .= "  (1, 1, '{$escaped['photo_id']}', '{$escaped['latitude']}', '{$escaped['longitude']}', '{$escaped['date']}', '{$escaped['url']}', '{$escaped['image_url']}', ";
+        $query .= "'{$escaped['title']}', '{$escaped['description']}', FROM_UNIXTIME('{$escaped['posted']}'))";
 
-        db_insert($query);
+        return db_insert($query);
     }
 
