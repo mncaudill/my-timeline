@@ -4,12 +4,13 @@
     require_once 'include/db.php';
 
     // Get last 20 Flickr points
-    $query = "SELECT * FROM geopoints WHERE user_id=1 LIMIT 50";
+    $query = "SELECT * FROM geopoints WHERE user_id=1 order by posted desc";
     $results = db_query($query);
 
     $maps_js = 'var points = [';
     foreach($results as $result) {
-        $html = "<a href=\"{$result['url']}\">{$result['title']}</a><br><img src=\"{$result['image_url']}\"/>";
+        $image_url = str_replace('_s.jpg', '_m.jpg', $result['image_url']);
+        $html = "<a href=\"{$result['url']}\">{$result['title']}</a><br><img style='width:240px;height:160px;' src=\"{$image_url}\"/>";
         $result['html'] = $html;
         $maps_js .= json_encode($result) . ',';            
     }
@@ -19,47 +20,51 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-  <title>CloudMade JavaScript API example</title>
+  <title>myTimeline</title>
 </head>
 <body style="height:100%;">
 
-  <div id="cm-example" style="width:100%; height: 100%;position:absolute;top:0;left:0;"></div>
+  <div id="map" style="width:100%; height: 100%;position:absolute;top:0;left:0;"></div>
 
-  <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
   <script type="text/javascript">
-    var cloudmade = new CM.Tiles.CloudMade.Web({styleId: 998, key: '<?=$services_auth['cloudmade']['api_key']?>'});
-    var map = new CM.Map('cm-example', cloudmade);
-    map.addControl(new CM.LargeMapControl());
+    function initialize() {
+        var latlng = new google.maps.LatLng(-34.397, 150.644);
+        var myOptions = {
+            zoom: 8,
+            center: latlng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map"), myOptions);
 
-    <?=$maps_js?>
+        <?=$maps_js?>
 
-    var latlngs = [];
+        var open_window;
 
-    for(i = 0; i < points.length; i++) {
-        latlng = new CM.LatLng(points[i].lat, points[i].lon);
-        latlngs.push(latlng);
-    }
-
-    var bounds = new CM.LatLngBounds(latlngs);
-    map.zoomToBounds(bounds);
-
-    var markers = [];
-
-    function marker_click(marker, point) {
-        return function(latlng) {
-            marker.openInfoWindow(point.html, {maxWidth: 100});
+        function marker_click(marker, point) {
+            return function() {
+                var infowindow = new google.maps.InfoWindow({content: point.html});
+                if(open_window) {
+                    open_window.close();
+                }
+                infowindow.open(map, marker);     
+                open_window = infowindow;
+            }
         }
+
+        var bounds = new google.maps.LatLngBounds();
+        
+        for(i = 0; i < points.length; i++) {
+            latlng =  new google.maps.LatLng(points[i].lat, points[i].lon);
+            marker = new google.maps.Marker({position: latlng});
+            google.maps.event.addListener(marker, 'click', marker_click(marker, points[i]));
+            bounds.extend(latlng);
+            marker.setMap(map);
+        }
+
+        map.fitBounds(bounds);
     }
-
-    for(i = 0; i < latlngs.length; i++) {
-        marker = new CM.Marker(latlngs[i]);
-        CM.Event.addListener(marker, 'click', marker_click(marker, points[i]));
-        markers.push(marker);
-    }
-
-    var clusterer = new CM.MarkerClusterer(map, {clusterRadius: 70});
-    clusterer.addMarkers(markers);
-
+    initialize();
   </script>
 
 </body>
