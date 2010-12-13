@@ -3,7 +3,9 @@
 
     // Assumes properly escaped strings
     function db_connect() {
-        $db = mysql_connect('localhost', 'root', '');
+        global $db;
+
+        $db = mysql_connect($db['host'], $db['username'], $db['password']);
 
         if(!$db) {
             die("Couldn't connect to DB: " . mysql_error());

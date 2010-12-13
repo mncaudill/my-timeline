@@ -1,5 +1,12 @@
 <?php
 
+    $db = array(
+        'name' => '',
+        'host' => '',
+        'username' => '',
+        'password' => ''
+    );
+
     $services_auth = array(
         'cloudmade' => array(
             'api_key' => '',
