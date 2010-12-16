@@ -1,1 +1,14 @@
-Absolutely a work in progress. Doesn't really do much of anything yet.
+##############################
+myTimeline 
+Author: Nolan Caudill
+##############################
+
+myTimeline will be a way to view events of your life, both spatially and temporally. 
+
+With more services attaching geodata to events (e.g., Twitter messages, Flickr photos), I thought it'd be interesting to see all these events on with a time control to see what happened and where.
+
+Currently, all this project does is fetch Flickr photos and Twitter messages and store them and display them on the map. The plan is to eventually add a time control to only show pieces of this data at a time. 
+
+The code is prototype quality right now as I'm just winging it. 
+
+
