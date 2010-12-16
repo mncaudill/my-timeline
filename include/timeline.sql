@@ -6,7 +6,7 @@ CREATE TABLE `users` (
   `flickr_last_run_id` bigint(20) DEFAULT NULL,
   `twitter_last_run_id` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
 CREATE TABLE `geopoints` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL,
@@ -24,4 +24,4 @@ CREATE TABLE `geopoints` (
   UNIQUE KEY `user_source_source_id` (`user_id`,`source`,`source_id`),
   KEY `lon` (`lon`) USING BTREE,
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=471 DEFAULT CHARSET=utf8
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
