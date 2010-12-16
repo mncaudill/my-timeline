@@ -32,7 +32,8 @@
 
         $page = 1;
         $count = 1;
-        while(true) {
+        $done = false;
+        while(!$done) {
 
             $url = "http://api.twitter.com/1/statuses/user_timeline.json?screen_name=$screenname&page=$page&count=150";
 
@@ -81,10 +82,6 @@
                 }
 
                 $count++;
-            }
-
-            if($done) {
-                break;
             }
 
             $page++;
