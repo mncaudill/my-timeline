@@ -20,30 +20,46 @@
 
         $screenname = $result[0]['twitter_screenname'];
 
-        // Get largest twitter ID
-        $sql = "SELECT source_id FROM geopoints WHERE source=2 AND user_id=$user_id ORDER BY event_time DESC LIMIT 1";
+        // Get last run twitter ID
+        $sql = "SELECT twitter_last_run_id FROM users WHERE user_id=$user_id";
         $result = db_query($sql);
 
         if(!$result) {
             $since_id = 0;    
         } else {
-            $since_id = $result[0]['source_id'];
+            $since_id = $result[0]['twitter_last_run_id'];
         }
 
         $page = 1;
+        $count = 1;
         while(true) {
 
             $url = "http://api.twitter.com/1/statuses/user_timeline.json?screen_name=$screenname&page=$page&count=150";
+
             if($since_id) {
                 $url .= "&since_id=$since_id";
             }
+
             $results = json_decode(file_get_contents($url), true);
 
             if(!$results) {
+                echo "No results. Breaking...\n";
                 break;
             }
 
             foreach($results as $tweet) {
+
+                if($since_id && $tweet['id_str'] == $since_id) {
+                    echo "Seen last run id. Breaking...\n";
+                    $done = true;
+                    break;
+                }
+
+                if($count == 1) {
+                    $sql = "UPDATE users SET twitter_last_run_id='" . addslashes($tweet['id_str']) . "' WHERE user_id=$user_id";
+                    db_insert($sql);
+                }
+
                 if($tweet['geo']) {
                     
                     $db_tweet = array(
@@ -58,10 +74,17 @@
 
                     print $tweet['text'] . "\n";
                     if(!twitter_insert_tweet($db_tweet)) {
-                        print mysql_error() . "\n";
-                        exit;
+                        echo "Already seen this on in the DB. Breaking...\n";
+                        $done = true;
+                        break;
                     }
                 }
+
+                $count++;
+            }
+
+            if($done) {
+                break;
             }
 
             $page++;

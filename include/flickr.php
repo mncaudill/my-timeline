@@ -14,6 +14,15 @@
 
         $nsid = $result[0]['flickr_nsid'];
 
+        // Get ID of first photo from the last run
+        $sql = "SELECT flickr_last_run_id FROM users WHERE user_id=$user_id";
+        $result = db_query($sql);
+
+        $last_seen_id = null;
+        if($result) {
+            $last_seen_id = $result[0]['flickr_last_run_id'];
+        }
+
         $failed = false;
         $photos = array();
         $curr_page = 1;
@@ -31,10 +40,22 @@
                     // Get info
                     $photo_id = $photo->id;
 
+                    if($last_seen_id && $photo_id == $last_seen_id) {
+                        print "Matches last run id. Breaking...\n";
+                        $done = true;
+                        break;
+                    }
+
+                    if($count == 1) {
+                        $sql = "UPDATE users SET flickr_last_run_id='" . addslashes($photo_id) . "' WHERE user_id=$user_id";
+                        db_insert($sql);
+                    }
+
                     print "$count. Fetching photo: $photo_id\n";
+
                     $count++;
                     if ($photo_info = flickr_get_photo_info($photo_id)) {
-                        if($photo_info->location->latitude) {
+                        if(isset($photo_info->location->latitude)) {
                             $photo = array();
                             $photo['user_id'] = $user_id;
                             $photo['photo_id'] = $photo_id;

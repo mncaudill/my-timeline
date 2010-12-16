@@ -3,6 +3,8 @@ CREATE TABLE `users` (
   `urlname` varchar(100) DEFAULT NULL,
   `flickr_nsid` varchar(255) DEFAULT NULL,
   `twitter_screenname` varchar(255) DEFAULT NULL,
+  `flickr_last_run_id` bigint(20) DEFAULT NULL,
+  `twitter_last_run_id` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
 CREATE TABLE `geopoints` (
