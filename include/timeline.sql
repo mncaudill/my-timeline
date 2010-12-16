@@ -5,7 +5,9 @@ CREATE TABLE `users` (
   `twitter_screenname` varchar(255) DEFAULT NULL,
   `flickr_last_run_id` bigint(20) DEFAULT NULL,
   `twitter_last_run_id` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`user_id`)
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `urlname` (`urlname`)
+
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
 CREATE TABLE `geopoints` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
