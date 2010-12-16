@@ -3,7 +3,16 @@
     require_once 'config.php';
     require_once 'db.php';
 
-    function flickr_fetch_photos($nsid) {
+    function flickr_fetch_photos($user_id) {
+
+        $sql = "SELECT flickr_nsid FROM users WHERE user_id=$user_id";
+        $result = db_query($sql);
+
+        if(!$result) {
+            return false;
+        }
+
+        $nsid = $result[0]['flickr_nsid'];
 
         $failed = false;
         $photos = array();
@@ -27,6 +36,7 @@
                     if ($photo_info = flickr_get_photo_info($photo_id)) {
                         if($photo_info->location->latitude) {
                             $photo = array();
+                            $photo['user_id'] = $user_id;
                             $photo['photo_id'] = $photo_id;
                             $photo['title'] = $photo_info->title->_content;
                             $photo['description'] = $photo_info->description->_content;
@@ -99,7 +109,7 @@
         }
 
         $query = "INSERT INTO geopoints (user_id, source, source_id, lat, lon, event_time, url, image_url, title, description, posted) values ";
-        $query .= "  (1, 1, '{$escaped['photo_id']}', '{$escaped['latitude']}', '{$escaped['longitude']}', '{$escaped['date']}', '{$escaped['url']}', '{$escaped['image_url']}', ";
+        $query .= "  ({$escaped['user_id']}, 1, '{$escaped['photo_id']}', '{$escaped['latitude']}', '{$escaped['longitude']}', '{$escaped['date']}', '{$escaped['url']}', '{$escaped['image_url']}', ";
         $query .= "'{$escaped['title']}', '{$escaped['description']}', FROM_UNIXTIME('{$escaped['posted']}'))";
 
         return db_insert($query);

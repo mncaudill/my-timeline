@@ -2,6 +2,8 @@
 
     require_once 'include/config.php';
     require_once 'include/db.php';
+    require_once 'include/flickr.php';
+    require_once 'include/twitter.php';
 
     // Get last 20 Flickr points
     $query = "SELECT * FROM geopoints";
@@ -15,8 +17,7 @@
             $html = "<a href=\"{$result['url']}\">{$result['title']}</a><br><img style='width:240px;height:160px;' src=\"{$image_url}\"/>";
             $result['html'] = $html;
         } else { // Twitter
-            $html = "<a href=\"{$result['url']}\">{$result['title']}</a>";
-            $result['html'] = $html;
+            $result['html'] = twitter_format_pin($result);
         }
 
         $maps_js .= json_encode($result) . ',';            
