@@ -4,14 +4,21 @@
     require_once 'include/db.php';
 
     // Get last 20 Flickr points
-    $query = "SELECT * FROM geopoints WHERE user_id=1 order by posted desc";
+    $query = "SELECT * FROM geopoints";
     $results = db_query($query);
 
     $maps_js = 'var points = [';
     foreach($results as $result) {
-        $image_url = str_replace('_s.jpg', '_m.jpg', $result['image_url']);
-        $html = "<a href=\"{$result['url']}\">{$result['title']}</a><br><img style='width:240px;height:160px;' src=\"{$image_url}\"/>";
-        $result['html'] = $html;
+        // Flickr
+        if($result['source'] == 1) {
+            $image_url = str_replace('_s.jpg', '_m.jpg', $result['image_url']);
+            $html = "<a href=\"{$result['url']}\">{$result['title']}</a><br><img style='width:240px;height:160px;' src=\"{$image_url}\"/>";
+            $result['html'] = $html;
+        } else { // Twitter
+            $html = "<a href=\"{$result['url']}\">{$result['title']}</a>";
+            $result['html'] = $html;
+        }
+
         $maps_js .= json_encode($result) . ',';            
     }
     $maps_js .= '];';
