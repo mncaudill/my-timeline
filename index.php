@@ -5,8 +5,26 @@
     require_once 'include/flickr.php';
     require_once 'include/twitter.php';
 
+    // Who's here?
+    if(!isset($_GET['user'])) {
+        echo "Must pass in user";
+        exit;
+    }
+
+    $username = $_GET['user'];
+
+    $sql = "SELECT user_id FROM users WHERE urlname='" . addslashes($username) . "'";
+    $result = db_query($sql);
+
+    if(!$result) {
+        echo "No user found";
+        exit;
+    }
+
+    $user_id = $result[0]['user_id'];
+
     // Get last 20 Flickr points
-    $query = "SELECT * FROM geopoints";
+    $query = "SELECT * FROM geopoints WHERE user_id=$user_id";
     $results = db_query($query);
 
     $maps_js = 'var points = [';
