@@ -29,16 +29,17 @@
         $count = 1;
 
         $done = false;
+        $extras = "description,date_taken,owner_name,geo,path_alias,url_s";
         do {
-            $rsp = flickr_api_call('flickr.people.getPublicPhotos', array('geo', 1, 'user_id' => $nsid, 'page' => $curr_page)); 
+            $rsp = flickr_api_call('flickr.people.getPublicPhotos', array('user_id' => $nsid, 'page' => $curr_page, 'extras' => $extras)); 
             if($rsp->stat === 'ok') {
                 $curr_page++;
                 $pages = $rsp->photos->pages;
                 
-                foreach ($rsp->photos->photo as $photo) {
+                foreach ($rsp->photos->photo as $photo_info) {
 
                     // Get info
-                    $photo_id = $photo->id;
+                    $photo_id = $photo_info->id;
 
                     if($last_seen_id && $photo_id == $last_seen_id) {
                         print "Matches last run id. Breaking...\n";
@@ -54,29 +55,29 @@
                     print "$count. Fetching photo: $photo_id\n";
 
                     $count++;
-                    if ($photo_info = flickr_get_photo_info($photo_id)) {
-                        if(isset($photo_info->location->latitude)) {
-                            $photo = array();
-                            $photo['user_id'] = $user_id;
-                            $photo['photo_id'] = $photo_id;
-                            $photo['title'] = $photo_info->title->_content;
-                            $photo['description'] = $photo_info->description->_content;
-                            $photo['date'] = $photo_info->dates->taken;
-                            $photo['latitude'] = $photo_info->location->latitude;
-                            $photo['longitude'] = $photo_info->location->longitude;
-                            $photo['image_url'] = flickr_get_image_url($photo_info);
-                            $photo['url'] = $photo_info->urls->url[0]->_content;
-                            $photo['posted'] = $photo_info->dates->posted;
+                    if(!empty($photo_info->latitude)) {
+                        $photo = array();
+                        $photo['user_id'] = $user_id;
+                        $photo['photo_id'] = $photo_id;
+                        $photo['title'] = $photo_info->title;
+                        $photo['description'] = $photo_info->description->_content;
+                        $photo['date'] = $photo_info->datetaken;
+                        $photo['latitude'] = $photo_info->latitude;
+                        $photo['longitude'] = $photo_info->longitude;
+                        $photo['image_url'] = $photo_info->url_s;
+                        $photo['url'] = $photo_info->pathalias 
+                            ? "http://www.flickr.com/{$photo_info->pathalias}/$photo_id" 
+                            : "http://www.flickr.com/$nsid/$photo_id";
+                        $photo['posted'] = $photo_info->datetaken;
 
-                            if(!flickr_insert_photo($photo)) {
-                                $done = true;        
-                                break;
-                            }
+                        if(!flickr_insert_photo($photo)) {
+                            $done = true;        
+                            break;
                         }
-
-                        // Sleep for quarter second
-                        usleep(250000);
                     }
+
+                    // Sleep for quarter second
+                    usleep(250000);
                 }
 
             } 
