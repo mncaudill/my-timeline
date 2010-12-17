@@ -1,5 +1,5 @@
 CREATE TABLE `users` (
-  `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `urlname` varchar(100) DEFAULT NULL,
   `flickr_nsid` varchar(255) DEFAULT NULL,
   `twitter_screenname` varchar(255) DEFAULT NULL,
@@ -10,8 +10,8 @@ CREATE TABLE `users` (
 
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
 CREATE TABLE `geopoints` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
   `source` int(11) NOT NULL,
   `source_id` varchar(50) NOT NULL,
   `lat` float(10,6) NOT NULL,
