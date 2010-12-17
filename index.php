@@ -115,10 +115,12 @@
         <input type="text" name="year" value="<?=$year?>" size=4 maxlength=4>
         <input type="submit">
     </form>
+    <div id="control-message"></div>
   </div>
 
   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
   <script type="text/javascript">
+    var control_message = document.getElementById('control-message');
     function initialize() {
         var latlng = new google.maps.LatLng(-34.397, 150.644);
         var myOptions = {
@@ -164,9 +166,13 @@
         function highlight_month(year, month) {
             var ym = year + "-" + month;
             var bounds = new google.maps.LatLngBounds();
+            var seen = false;
+
+            control_message.innerHTML = '';
             for(var i in points) {
                 point = points[i];
                 if(point.ym == ym) {
+                    seen = true;
                     markers[i].setMap(map);
                     bounds.extend(points[i].latlng);
                 } else {
@@ -174,7 +180,11 @@
                 }
             }
 
-            map.fitBounds(bounds);
+            if(seen) {
+                map.fitBounds(bounds);
+            } else { 
+                control_message.innerHTML = 'No geopoints found for this month.'; 
+            }
             
             return false;
         }
