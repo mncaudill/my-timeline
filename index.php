@@ -1,5 +1,4 @@
 <?php
-
     require_once 'include/config.php';
     require_once 'include/db.php';
     require_once 'include/flickr.php';
@@ -31,14 +30,7 @@
     foreach($results as $result) {
         // Flickr
         if($result['source'] == 1) {
-            $image_url = str_replace('_s.jpg', '_m.jpg', $result['image_url']);
-            $html = '';
-            if($result['title']) {
-                $html .= "{$result['title']}";
-                $html .= "<br>" . date('F j, Y \a\t h:i:s a', strtotime($result['event_time'])) . '<br>';
-            }
-            $html .= "<a href=\"{$result['url']}\"><img src=\"{$image_url}\"/></a><br>";
-            $result['html'] = $html;
+            $result['html'] = flickr_format_pin($result);
         } else { // Twitter
             $result['html'] = twitter_format_pin($result);
         }
