@@ -166,7 +166,6 @@
             var bounds = new google.maps.LatLngBounds();
             for(var i in points) {
                 point = points[i];
-                console.log(point.ym + '=' + ym);
                 if(point.ym == ym) {
                     markers[i].setMap(map);
                     bounds.extend(points[i].latlng);
@@ -188,6 +187,10 @@
             month = form.month.value;
             year = form.year.value;
             highlight_month(year, month);
+            if(history.pushState) {
+                url = window.location.pathname + '?user=<?=$username?>&month=' + month + '&year=' + year;
+                history.pushState({}, '', url);
+            }
             return false;
         }
 
