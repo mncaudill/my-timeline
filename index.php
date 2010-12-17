@@ -26,26 +26,23 @@
     $month = isset($_GET['month']) && intval($_GET['month']) ? $_GET['month'] : date('n');
     $year = isset($_GET['year']) && intval($_GET['year']) ? $_GET['year'] : date('Y');
 
-    $start_time = strtotime("$year-$month-01");
-    $end_time = strtotime("$year-$month-01 +1 month");
-
     // Get last 20 Flickr points
-    $query = "SELECT * FROM geopoints WHERE user_id=$user_id AND event_time >= FROM_UNIXTIME($start_time) AND event_time < FROM_UNIXTIME($end_time)";
+    $query = "SELECT *, DATE_FORMAT(event_time, '%Y-%c') ym FROM geopoints WHERE user_id=$user_id ORDER BY event_time";
     $results = db_query($query);
 
-    $maps_js = 'var points = [';
+    $points = array();
     foreach($results as $result) {
-        // Flickr
+
         if($result['source'] == 1) {
             $result['html'] = flickr_format_pin($result);
         } else { // Twitter
             $result['html'] = twitter_format_pin($result);
         }
 
-        $maps_js .= json_encode($result) . ',';            
+        $points[] = $result;
     }
-    $maps_js .= '];';
 
+    $points_js = json_encode($points);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -93,7 +90,7 @@
         };
         var map = new google.maps.Map(document.getElementById("map"), myOptions);
 
-        <?=$maps_js?>
+        var points = <?=$points_js?>;
 
         var infowindow = new google.maps.InfoWindow();
 
@@ -106,16 +103,54 @@
         }
 
         var bounds = new google.maps.LatLngBounds();
+
+        var active_month = '<?="$year-$month"?>';
+
+        // Create markers for everything
+        var markers = [];
         
-        for(i = 0; i < points.length; i++) {
-            latlng =  new google.maps.LatLng(points[i].lat, points[i].lon);
+        for(var i in points) {
+            point = points[i];
+            latlng =  new google.maps.LatLng(point.lat, point.lon);
+            point.latlng = latlng;
             marker = new google.maps.Marker({position: latlng});
-            google.maps.event.addListener(marker, 'click', marker_click(marker, points[i]));
-            bounds.extend(latlng);
-            marker.setMap(map);
+            google.maps.event.addListener(marker, 'click', marker_click(marker, point));
+            markers.push(marker);
         }
 
-        map.fitBounds(bounds);
+        function highlight_month(year, month) {
+            var ym = year + "-" + month;
+            var bounds = new google.maps.LatLngBounds();
+            for(var i in points) {
+                point = points[i];
+                console.log(point.ym + '=' + ym);
+                if(point.ym == ym) {
+                    markers[i].setMap(map);
+                    bounds.extend(points[i].latlng);
+                } else {
+                    markers[i].setMap(null);
+                }
+            }
+
+            map.fitBounds(bounds);
+            
+            return false;
+        }
+
+        highlight_month(<?=$year?>, <?=$month?>);
+
+        var form = document.getElementById('date-selector');
+        form.onsubmit = function() {
+            infowindow.close();
+            month = form.month.value;
+            year = form.year.value;
+            highlight_month(year, month);
+            if(history.pushState) {
+                history.pushState({}, '', '/<?=$_SERVER['REQUEST_URI']?>/?user=<?=$username?>&month=' + month + '&year=' + year);
+            }
+            return false;
+        }
+
     }
     initialize();
   </script>
