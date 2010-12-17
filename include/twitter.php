@@ -4,7 +4,7 @@
     require_once 'db.php';
 
     function twitter_format_pin($tweet) {
-        $html = wordwrap($tweet['title'], 50) . '<br>';
+        $html = wordwrap($tweet['title'], 50, '<br>') . '<br>';
         $html .= "<a href=\"{$tweet['url']}\">" . date('F j, Y \a\t g:i:s a', strtotime($tweet['event_time'])) . "</a>";
         return $html;
     }
