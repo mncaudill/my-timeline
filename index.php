@@ -188,9 +188,6 @@
             month = form.month.value;
             year = form.year.value;
             highlight_month(year, month);
-            if(history.pushState) {
-                history.pushState({}, '', '/<?=$_SERVER['REQUEST_URI']?>/?user=<?=$username?>&month=' + month + '&year=' + year);
-            }
             return false;
         }
 
