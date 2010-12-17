@@ -39,18 +39,26 @@
         $latlng_hash = "{$result['lat']}={$result['lon']}";
         if(isset($seen_latlngs[$latlng_hash])) {
             $count = 0;
-            while(isset($seen_latlngs[$latlng_hash]) && $count < 25) {
+            while(isset($seen_latlngs[$latlng_hash]) && $count < 100) {
                 // Randomly place it really close. The little algorithm below is fuzzy, but gives satisfactory results.
-                // This gives you 25 nearby points to try. If you have 25 all within the same spot, oh well.
-                // Lat or long
+                // This gives you 100 nearby points to try. If you have 100 all within the same spot, oh well.
+
+                // Come up with a lat
+                $lat_diff = mt_rand(3, 7) / 100000;
                 if(mt_rand(0, 1)) {
-                    $result['lat'] += (mt_rand(3, 7) / 100000);
-                    $result['lon'] = $orig_lon;
+                    $result['lat'] = $orig_lat + $lat_diff;
                 } else {
-                    $result['lat'] = $orig_lat;
-                    $result['lon'] += (mt_rand(3, 7) / 100000);
+                    $result['lat'] = $orig_lat - $lat_diff;
                 }
 
+                // Come up with a lon
+                $lon_diff = mt_rand(3, 7) / 10000;
+                if(mt_rand(0, 1)) {
+                    $result['lon'] = $orig_lon + $lon_diff;
+                } else {
+                    $result['lon'] = $orig_lon - $lon_diff;
+                }
+                
                 $latlng_hash = "{$result['lat']}={$result['lon']}";
                 $count++;
             }
