@@ -85,6 +85,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <title>myTimeline</title>
+  <style type="text/css">
+    body {
+        font-family: arial;
+        font-size: 12px;
+    }
+  </style>
 </head>
 <body style="height:100%;">
 
@@ -134,7 +140,7 @@
         function marker_click(marker, point) {
             return function() {
                 infowindow.close();
-                infowindow.setContent(point.html);
+                infowindow.setContent('<br>' + point.html);
                 infowindow.open(map, marker);     
             }
         }
