@@ -138,7 +138,7 @@
     }
 
     function flickr_format_pin($result) {
-        $image_url = str_replace('_s.jpg', '_m.jpg', $result['image_url']);
+        $image_url = $result['image_url'];
         $html = '';
         if($result['title']) {
             $html .= "{$result['title']}";
