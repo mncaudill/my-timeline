@@ -30,7 +30,7 @@
     $end_time = strtotime("$year-$month-01 +1 month");
 
     // Get last 20 Flickr points
-    $query = "SELECT * FROM geopoints WHERE user_id=$user_id AND event_time BETWEEN FROM_UNIXTIME($start_time) AND FROM_UNIXTIME($end_time)";
+    $query = "SELECT * FROM geopoints WHERE user_id=$user_id AND event_time >= FROM_UNIXTIME($start_time) AND event_time < FROM_UNIXTIME($end_time)";
     $results = db_query($query);
 
     $maps_js = 'var points = [';
