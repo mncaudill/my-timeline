@@ -37,7 +37,7 @@
                 $html .= "{$result['title']}";
                 $html .= "<br>" . date('F j, Y \a\t h:i:s a', strtotime($result['event_time'])) . '<br>';
             }
-            $html = "<a href=\"{$result['url']}\"><img style='width:240px;height:160px;' src=\"{$image_url}\"/></a><br>";
+            $html .= "<a href=\"{$result['url']}\"><img src=\"{$image_url}\"/></a><br>";
             $result['html'] = $html;
         } else { // Twitter
             $result['html'] = twitter_format_pin($result);
