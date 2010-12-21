@@ -161,7 +161,7 @@
             markers.push(marker);
         }
 
-        var markerclusterer = new MarkerClusterer(map, markers);
+        var markerclusterer;
 
         var bounds = new google.maps.LatLngBounds();
 
@@ -170,7 +170,9 @@
             var ym = year + "-" + month;
             var seen = false;
             
-            markerclusterer.clearMarkers();
+            if (markerclusterer) {
+                markerclusterer.clearMarkers();
+            }
 
             control_message.innerHTML = '';
             for(var i in points) {
@@ -185,7 +187,11 @@
             if (!seen) {
                 control_message.innerHTML = 'No geopoints found for this month.'; 
             } else {
-                markerclusterer.addMarkers(current_markers);
+                if (markerclusterer) {
+                    markerclusterer.addMarkers(current_markers);
+                } else {
+                    markerclusterer = new MarkerClusterer(map, current_markers);
+                }
                 map.fitBounds(bounds);
             }
             
