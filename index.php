@@ -119,6 +119,7 @@
   </div>
 
   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript" src="markerclusterer_packed.js"></script>
   <script type="text/javascript">
     var control_message = document.getElementById('control-message');
     function initialize() {
@@ -147,8 +148,6 @@
             }
         }
 
-        var bounds = new google.maps.LatLngBounds();
-
         var active_month = '<?="$year-$month"?>';
 
         // Create markers for everything
@@ -157,33 +156,37 @@
         for(var i in points) {
             point = points[i];
             latlng =  new google.maps.LatLng(point.lat, point.lon);
-            point.latlng = latlng;
             marker = new google.maps.Marker({position: latlng});
             google.maps.event.addListener(marker, 'click', marker_click(marker, point));
             markers.push(marker);
         }
 
+        var markerclusterer = new MarkerClusterer(map, markers);
+
+        var bounds = new google.maps.LatLngBounds();
+
         function highlight_month(year, month) {
+            var current_markers = [];
             var ym = year + "-" + month;
-            var bounds = new google.maps.LatLngBounds();
             var seen = false;
+            
+            markerclusterer.clearMarkers();
 
             control_message.innerHTML = '';
             for(var i in points) {
                 point = points[i];
                 if(point.ym == ym) {
                     seen = true;
-                    markers[i].setMap(map);
-                    bounds.extend(points[i].latlng);
-                } else {
-                    markers[i].setMap(null);
-                }
+                    current_markers.push(markers[i]);
+                    bounds.extend(markers[i].getPosition());
+                } 
             }
 
-            if(seen) {
-                map.fitBounds(bounds);
-            } else { 
+            if (!seen) {
                 control_message.innerHTML = 'No geopoints found for this month.'; 
+            } else {
+                markerclusterer.addMarkers(current_markers);
+                map.fitBounds(bounds);
             }
             
             return false;
