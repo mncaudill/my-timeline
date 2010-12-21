@@ -169,10 +169,6 @@
             var current_markers = [];
             var ym = year + "-" + month;
             var seen = false;
-            
-            if (markerclusterer) {
-                markerclusterer.clearMarkers();
-            }
 
             control_message.innerHTML = '';
             for(var i in points) {
@@ -188,9 +184,10 @@
                 control_message.innerHTML = 'No geopoints found for this month.'; 
             } else {
                 if (markerclusterer) {
+                    markerclusterer.clearMarkers();
                     markerclusterer.addMarkers(current_markers);
                 } else {
-                    markerclusterer = new MarkerClusterer(map, current_markers);
+                    markerclusterer = new MarkerClusterer(map, current_markers, {maxZoom: 19});
                 }
                 map.fitBounds(bounds);
             }
